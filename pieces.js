@@ -57,7 +57,6 @@ class Piece {
     square.setAttribute("square-id", this._index);
     square?.firstElementChild?.setAttribute("draggable", true);
     const row = Math.floor((63 - this._index) / this.dimension) + 1;
-    console.log("Row", row, this._index);
     if (row % 2 === 0) {
       this.square_color = this._index % 2 === 0 ? "beige" : "brown";
     } else {

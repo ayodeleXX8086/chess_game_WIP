@@ -1,9 +1,9 @@
 class ChessManager {
   constructor() {
     this.events = {
-      dragstart: this.dragStart(),
-      dragover: this.dragOver,
-      drop: this.dragDrop(),
+      dragstart: this.dragStart.bind(this),
+      dragover: this.dragOver.bind(this),
+      drop: this.dragDrop.bind(this),
       mouseenter: this.handleMouseEnter.bind(this),
       mouseleave: this.handleMouseLeave.bind(this),
     };
@@ -141,15 +141,11 @@ class ChessManager {
         return false;
     }
   }
-  dragStart() {
-    const dragStartInnerMethod = (e) => {
-      const draggedElementId = parseInt(
-        e.target.parentNode.getAttribute("square-id")
-      );
-      console.log("Get pressed");
-      this.current_piece = this.map[draggedElementId];
-    };
-    return dragStartInnerMethod;
+  dragStart(e) {
+    const draggedElementId = parseInt(
+      e.target.parentNode.getAttribute("square-id")
+    );
+    this.current_piece = this.map[draggedElementId];
   }
   dragOver(e) {
     e.preventDefault();
@@ -174,7 +170,6 @@ class ChessManager {
         return possiblePiece;
       }
     });
-    console.log("Possible moves", this.possibleMoves);
     this.possibleMoves?.forEach((piece) => {
       if (piece) {
         piece.displayAsPossiblePiece();
@@ -184,7 +179,6 @@ class ChessManager {
 
   // Event handler for mouseleave
   handleMouseLeave(e) {
-    console.log("Leaving ");
     this.possibleMoves?.forEach((piece) => {
       if (piece) {
         piece.revertToSquareColor();
@@ -192,42 +186,36 @@ class ChessManager {
     });
     this.possibleMoves = [];
   }
-  dragDrop() {
-    const dragDropInnerMethod = (e) => {
-      console.log("Dropped", this.current_piece);
-      e.stopPropagation();
-      const targetId =
-        Number(e.target.getAttribute("square-id")) ||
-        Number(e.target.parentNode.getAttribute("square-id"));
-      const targetPiece = this.pieces[targetId];
-      const isPiece = !targetPiece.IsSquareEmpty;
-      const correctGo = this.current_piece.Player === this.current_player;
-      const opponent =
-        this.current_player === Player.BLACK ? Player.WHITE : Player.BLACK;
-      const isPieceOpponent = targetPiece.Player === opponent;
-      const isValidMove = this.#validMove(targetPiece, this.current_piece);
-      if (correctGo) {
-        if (isPiece && !isPieceOpponent) {
-          this.infoDisplay.textContent = "you cannot go here";
-          setTimeout(() => (this.infoDisplay.textContent = ""), 2000);
-          return;
-        }
-        if (isValidMove) {
-          targetPiece.overrideSquareHtmlElement(
-            this.current_piece.ChessElement
-          );
-          this.current_piece.makePieceEmpty();
-          this.current_player =
-            this.current_player === Player.BLACK ? Player.WHITE : Player.BLACK;
-          this.playerDisplay.textContent = this.current_player;
-          return;
-        }
-      } else {
-        this.infoDisplay.textContent = "you cannot pick this piece";
+  dragDrop(e) {
+    e.stopPropagation();
+    const targetId =
+      Number(e.target.getAttribute("square-id")) ||
+      Number(e.target.parentNode.getAttribute("square-id"));
+    const targetPiece = this.pieces[targetId];
+    const isPiece = !targetPiece.IsSquareEmpty;
+    const correctGo = this.current_piece.Player === this.current_player;
+    const opponent =
+      this.current_player === Player.BLACK ? Player.WHITE : Player.BLACK;
+    const isPieceOpponent = targetPiece.Player === opponent;
+    const isValidMove = this.#validMove(targetPiece, this.current_piece);
+    if (correctGo) {
+      if (isPiece && !isPieceOpponent) {
+        this.infoDisplay.textContent = "you cannot go here";
         setTimeout(() => (this.infoDisplay.textContent = ""), 2000);
+        return;
       }
-    };
-    return dragDropInnerMethod;
+      if (isValidMove) {
+        targetPiece.overrideSquareHtmlElement(this.current_piece.ChessElement);
+        this.current_piece.makePieceEmpty();
+        this.current_player =
+          this.current_player === Player.BLACK ? Player.WHITE : Player.BLACK;
+        this.playerDisplay.textContent = this.current_player;
+        return;
+      }
+    } else {
+      this.infoDisplay.textContent = "you cannot pick this piece";
+      setTimeout(() => (this.infoDisplay.textContent = ""), 2000);
+    }
   }
   #isValidDiagonalMove(targetMove, current_piece) {
     const dx = Math.abs(current_piece.RowAndCol[0] - targetMove.RowAndCol[0]);

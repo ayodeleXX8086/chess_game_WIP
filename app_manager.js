@@ -90,6 +90,12 @@ class ChessManager {
             targetMove.RowAndCol[0] &&
           current_piece.RowAndCol[1] + 2 * pawn_dy ===
             targetMove.RowAndCol[1] &&
+          this.map[
+            [
+              current_piece.RowAndCol[0] + 1 * pawn_dx,
+              current_piece.RowAndCol[1] + 1 * pawn_dy,
+            ]
+          ].IsSquareEmpty &&
           targetMove.IsSquareEmpty;
 
         const captureMove =

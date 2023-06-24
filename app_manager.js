@@ -217,37 +217,72 @@ class ChessManager {
       setTimeout(() => (this.infoDisplay.textContent = ""), 2000);
     }
   }
-  #isValidDiagonalMove(targetMove, current_piece) {
-    const dx = Math.abs(current_piece.RowAndCol[0] - targetMove.RowAndCol[0]);
-    const dy = Math.abs(current_piece.RowAndCol[1] - targetMove.RowAndCol[1]);
-    const [row, col] = targetMove.RowAndCol;
-    return (
-      dx === dy &&
-      this.#canReachTarget(targetMove, current_piece, [
-        [
-          row + (1 * current_piece.IsUpward ? -1 : 1),
-          col + (1 * current_piece.IsUpward ? -1 : 1),
-        ],
-        [
-          row + (1 * current_piece.IsUpward ? 1 : -1),
-          col + (1 * current_piece.IsUpward ? 1 : -1),
-        ],
-      ])
-    );
-  }
 
   #isValidStraightMove(targetMove, current_piece) {
     const dx = Math.abs(current_piece.RowAndCol[0] - targetMove.RowAndCol[0]);
     const dy = Math.abs(current_piece.RowAndCol[1] - targetMove.RowAndCol[1]);
-    const position = current_piece.RowAndCol;
-    const [row, col] = position;
-    return (
-      (dx === 0 || dy === 0) &&
-      this.#canReachTarget(targetMove, current_piece, [
-        [row + (1 * current_piece.IsUpward ? -1 : 1), col],
-        [row + (1 * current_piece.IsUpward ? 1 : -1), col],
-      ])
-    );
+
+    if ((dx === 0 && dy !== 0) || (dx !== 0 && dy === 0)) {
+      // Check if there are any pieces obstructing the straight path
+      if (dx === 0) {
+        const colDirection =
+          targetMove.RowAndCol[1] < current_piece.RowAndCol[1] ? -1 : 1;
+        let col = current_piece.RowAndCol[1] + colDirection;
+
+        while (col !== targetMove.RowAndCol[1]) {
+          if (!this.map[[current_piece.RowAndCol[0], col]].IsSquareEmpty) {
+            return false; // Path is obstructed by a piece
+          }
+          col += colDirection;
+        }
+      } else {
+        const rowDirection =
+          targetMove.RowAndCol[0] < current_piece.RowAndCol[0] ? -1 : 1;
+        let row = current_piece.RowAndCol[0] + rowDirection;
+
+        while (row !== targetMove.RowAndCol[0]) {
+          if (!this.map[[row, current_piece.RowAndCol[1]]].IsSquareEmpty) {
+            return false; // Path is obstructed by a piece
+          }
+          row += rowDirection;
+        }
+      }
+
+      return true; // Valid rook move
+    }
+
+    return false; // Not a valid rook move
+  }
+
+  #isValidDiagonalMove(targetMove, current_piece) {
+    const dx = Math.abs(current_piece.RowAndCol[0] - targetMove.RowAndCol[0]);
+    const dy = Math.abs(current_piece.RowAndCol[1] - targetMove.RowAndCol[1]);
+
+    if (dx === dy) {
+      // Check if there are any pieces obstructing the diagonal path
+      const rowDirection =
+        targetMove.RowAndCol[0] < current_piece.RowAndCol[0] ? -1 : 1;
+      const colDirection =
+        targetMove.RowAndCol[1] < current_piece.RowAndCol[1] ? -1 : 1;
+
+      let row = current_piece.RowAndCol[0] + rowDirection;
+      let col = current_piece.RowAndCol[1] + colDirection;
+
+      while (
+        row !== targetMove.RowAndCol[0] &&
+        col !== targetMove.RowAndCol[1]
+      ) {
+        if (!this.map[[row, col]].IsSquareEmpty) {
+          return false; // Path is obstructed by a piece
+        }
+        row += rowDirection;
+        col += colDirection;
+      }
+
+      return true; // Valid bishop move
+    }
+
+    return false; // Not a valid bishop move
   }
 
   #canReachTarget(targetMove, current_piece, neighbors) {
@@ -259,26 +294,34 @@ class ChessManager {
 
     while (queue.length > 0) {
       const position = queue.shift();
-
-      if (position === targetMove.RowAndCol) {
+      if (
+        position[0] === targetMove.RowAndCol[0] &&
+        position[1] === targetMove.RowAndCol[1]
+      ) {
         return true; // Target position reached
       }
       neighbors.forEach((neighbor) => {
         const [neighborRow, neighborCol] = neighbor;
-
+        const [newRow, newCol] = [
+          neighborRow + position[0],
+          neighborCol + position[1],
+        ];
         if (
-          neighborRow >= 0 &&
-          neighborRow < 8 &&
-          neighborCol >= 0 &&
-          neighborCol < 8 &&
-          !visited.has(neighbor) &&
-          this.map[neighbor].IsSquareEmpty
+          newRow >= 0 &&
+          newRow < 8 &&
+          newCol >= 0 &&
+          newCol < 8 &&
+          !visited.has([newRow, newCol]) &&
+          (this.map[[newRow, newCol]].IsSquareEmpty ||
+            (newRow === targetMove.RowAndCol[0] &&
+              newCol === targetMove.RowAndCol[1]))
         ) {
-          queue.push(neighbor);
-          visited.add(neighbor);
+          queue.push([newRow, newCol]);
+          visited.add([newRow, newCol]);
         }
       });
     }
+    console.log("Exited");
     return false;
   }
 }

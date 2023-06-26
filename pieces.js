@@ -50,6 +50,12 @@ class Piece {
   revertToSquareColor() {
     this.square.classList.remove("highlighted-red");
   }
+  revertToSquareColorFromThreat() {
+    this.square.classList.remove("highlighted-blue");
+  }
+  displayPossibleThreatToKing() {
+    this.square.classList.add("highlighted-blue");
+  }
   #createPiece() {
     const square = document.createElement("div");
     square.classList.add("square");

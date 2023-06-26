@@ -16,6 +16,7 @@ class ChessManager {
     this.#addSquaresToBoard();
     this.map = this.#getDictionaryForPiece();
     this.playerDisplay.textContent = this.current_player;
+    this.threatToKing = [];
   }
   #createPiece() {
     const chessElement = [
@@ -73,7 +74,7 @@ class ChessManager {
       this.gameBoard.append(piece.Sqaure);
     });
   }
-  #validMove(targetMove, current_piece) {
+  #validMove(targetMove, current_piece, isCaptureMove = false) {
     switch (current_piece.Type) {
       case PieceType.PAWN:
         const pawn_dx = current_piece.IsUpward ? -1 : 1;
@@ -104,7 +105,9 @@ class ChessManager {
             1 &&
           !targetMove.IsSquareEmpty;
 
-        return singleStepMove || doubleStepMove || captureMove;
+        return !isCaptureMove
+          ? singleStepMove || doubleStepMove || captureMove
+          : captureMove;
       case PieceType.KING:
         // King moves
         const resultKing =
@@ -167,19 +170,19 @@ class ChessManager {
       return;
     }
     const range = [...Array(64)].map((_, i) => i);
-    this.possibleMoves = range.map((idx) => {
-      const possiblePiece = this.map[idx];
-      if (
-        possiblePiece.Player != selectedPiece.Player &&
-        this.#validMove(possiblePiece, selectedPiece)
-      ) {
-        return possiblePiece;
-      }
-    });
+    this.possibleMoves = range
+      .filter((idx) => {
+        const possiblePiece = this.map[idx];
+        return (
+          possiblePiece.Player != selectedPiece.Player &&
+          this.#validMove(possiblePiece, selectedPiece)
+        );
+      })
+      .map((idx) => {
+        return this.map[idx];
+      });
     this.possibleMoves?.forEach((piece) => {
-      if (piece) {
-        piece.displayAsPossiblePiece();
-      }
+      piece.displayAsPossiblePiece();
     });
   }
 
@@ -203,6 +206,12 @@ class ChessManager {
     const opponent =
       this.current_player === Player.BLACK ? Player.WHITE : Player.BLACK;
     const isPieceOpponent = targetPiece.Player === opponent;
+    const isKingVulnerable =
+      (this.current_piece.Type === PieceType.KING
+        ? this.#getThreatsToKing(targetPiece).length > 0
+        : false) ||
+      (this.threatToKing?.length > 0 &&
+        this.current_piece.Type !== PieceType.KING);
     const isValidMove = this.#validMove(targetPiece, this.current_piece);
     if (correctGo) {
       if (isPiece && !isPieceOpponent) {
@@ -210,12 +219,16 @@ class ChessManager {
         setTimeout(() => (this.infoDisplay.textContent = ""), 2000);
         return;
       }
-      if (isValidMove) {
+      if (isKingVulnerable) {
+        this.infoDisplay.textContent = "Your king is vulnerable";
+        return;
+      } else if (!isKingVulnerable && isValidMove) {
         targetPiece.overrideSquareHtmlElement(this.current_piece.ChessElement);
         this.current_piece.makePieceEmpty();
         this.current_player =
           this.current_player === Player.BLACK ? Player.WHITE : Player.BLACK;
         this.playerDisplay.textContent = this.current_player;
+        this.#displayPossibleThreatToKing();
         return;
       }
     } else {
@@ -260,6 +273,36 @@ class ChessManager {
     return false; // Not a valid rook move
   }
 
+  // This method will only be called when the piece is actually a king
+  #getThreatsToKing(kingPiece) {
+    const getOtherPlayersPiece = this.#getOtherPlayers(this.current_player);
+    const result = getOtherPlayersPiece.filter((e) =>
+      this.#validMove(kingPiece, e, true)
+    );
+    console.log("Result for threats to king", result);
+    return result;
+  }
+
+  #getOtherPlayers(current_player) {
+    return this.pieces.filter(
+      (e) => e.Player !== current_player && !e.IsSquareEmpty
+    );
+  }
+  #displayPossibleThreatToKing() {
+    console.log("Display possible threat to king");
+    this.threatToKing?.forEach((e) => e.revertToSquareColorFromThreat());
+    const otherPlayerKing = this.pieces.find(
+      (e) => e.Type === PieceType.KING && e.Player === this.current_player
+    );
+    this.threatToKing = this.#getThreatsToKing(otherPlayerKing);
+    this.threatToKing?.forEach((e) => e.displayPossibleThreatToKing());
+    console.log("Possible threats to king", this.threatToKing);
+    if (this.threatToKing && this.threatToKing.length > 0) {
+      this.infoDisplay.textContent = "Your has been king checked mate";
+    } else {
+      this.infoDisplay.textContent = "";
+    }
+  }
   #isValidDiagonalMove(targetMove, current_piece) {
     const dx = Math.abs(current_piece.RowAndCol[0] - targetMove.RowAndCol[0]);
     const dy = Math.abs(current_piece.RowAndCol[1] - targetMove.RowAndCol[1]);
@@ -278,7 +321,7 @@ class ChessManager {
         row !== targetMove.RowAndCol[0] &&
         col !== targetMove.RowAndCol[1]
       ) {
-        if (!this.map[[row, col]].IsSquareEmpty) {
+        if (!this.map[[row, col]]?.IsSquareEmpty) {
           return false; // Path is obstructed by a piece
         }
         row += rowDirection;
@@ -289,46 +332,6 @@ class ChessManager {
     }
 
     return false; // Not a valid bishop move
-  }
-
-  #canReachTarget(targetMove, current_piece, neighbors) {
-    const queue = [];
-    const visited = new Set();
-
-    queue.push(current_piece.RowAndCol);
-    visited.add(current_piece.RowAndCol);
-
-    while (queue.length > 0) {
-      const position = queue.shift();
-      if (
-        position[0] === targetMove.RowAndCol[0] &&
-        position[1] === targetMove.RowAndCol[1]
-      ) {
-        return true; // Target position reached
-      }
-      neighbors.forEach((neighbor) => {
-        const [neighborRow, neighborCol] = neighbor;
-        const [newRow, newCol] = [
-          neighborRow + position[0],
-          neighborCol + position[1],
-        ];
-        if (
-          newRow >= 0 &&
-          newRow < 8 &&
-          newCol >= 0 &&
-          newCol < 8 &&
-          !visited.has([newRow, newCol]) &&
-          (this.map[[newRow, newCol]].IsSquareEmpty ||
-            (newRow === targetMove.RowAndCol[0] &&
-              newCol === targetMove.RowAndCol[1]))
-        ) {
-          queue.push([newRow, newCol]);
-          visited.add([newRow, newCol]);
-        }
-      });
-    }
-    console.log("Exited");
-    return false;
   }
 }
 

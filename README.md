@@ -62,6 +62,26 @@ Key Methods and Properties:
 - `check()`: Checks if a player's king is in check.
 - `isCheckmate()`: Checks if the game has ended in checkmate.
 
+## Install Dependencies
+
+Open a terminal in the project's root directory and run the following command to install the required dependencies.
+
+```bash
+npm install
+```
+
+This will install the Express.js framework.
+
+## Start the Server
+
+After installing the dependencies, start the Node.js server using the following command:
+
+```bash
+node server.js
+```
+
+You should see a message indicating that the server is running on http://localhost:3000 or a different port if specified.
+
 ## Usage
 
 To use the chess game, an HTML file must include the necessary JavaScript modules and create an instance of the `ChessAppManager` class. Players can interact with the game by dragging and dropping pieces, and the AI opponent makes moves based on the Minimax algorithm.

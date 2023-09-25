@@ -242,7 +242,7 @@ class ChessManager {
     const dy = Math.abs(current_piece.RowAndCol[1] - targetMove.RowAndCol[1]);
 
     if ((dx === 0 && dy !== 0) || (dx !== 0 && dy === 0)) {
-      // Check if there are any pieces obstructing the straight path
+      // check if there are any pieces obstructing the straight path
       if (dx === 0) {
         const colDirection =
           targetMove.RowAndCol[1] < current_piece.RowAndCol[1] ? -1 : 1;
@@ -289,14 +289,12 @@ class ChessManager {
     );
   }
   #displayPossibleThreatToKing() {
-    console.log("Display possible threat to king");
     this.threatToKing?.forEach((e) => e.revertToSquareColorFromThreat());
     const otherPlayerKing = this.pieces.find(
       (e) => e.Type === PieceType.KING && e.Player === this.current_player
     );
     this.threatToKing = this.#getThreatsToKing(otherPlayerKing);
     this.threatToKing?.forEach((e) => e.displayPossibleThreatToKing());
-    console.log("Possible threats to king", this.threatToKing);
     if (this.threatToKing && this.threatToKing.length > 0) {
       this.infoDisplay.textContent = "Your has been king checked mate";
     } else {
@@ -308,7 +306,7 @@ class ChessManager {
     const dy = Math.abs(current_piece.RowAndCol[1] - targetMove.RowAndCol[1]);
 
     if (dx === dy) {
-      // Check if there are any pieces obstructing the diagonal path
+      // check if there are any pieces obstructing the diagonal path
       const rowDirection =
         targetMove.RowAndCol[0] < current_piece.RowAndCol[0] ? -1 : 1;
       const colDirection =

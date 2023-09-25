@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chess main menu</title>
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Add Bootstrap CSS link -->
+  <link
+    rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      text-align: center;
+      /* background-color: #f0f0f0; */
+      padding: 10px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="row justify-content-center header">
+    <h1>Chess game</h1>
+  </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-6">
+        <div id="player-menu">
+          <div class="card">
+            <div class="card-header" id="settingsHeading">
+              <h2 class="text-align-center">
+                <input placeholder="Enter username" class="form-control" style="width:100%"></input>
+              </h2>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="settingsHeading">
+              <h2 class="text-align-center">
+                <button
+                  class="btn btn-header no-outline collapsed"
+                  data-toggle="collapse"
+                  data-target="#playWithFriendPanel"
+                  aria-expanded="false"
+                  aria-controls="playWithFriendPanel"
+                  style="width:100%"
+                >
+                  Play with a friend
+                </button>
+              </h2>
+            </div>
+            <div class="collapse" id="playWithFriendPanel">
+              <div class="card-body">
+                <input type="text" class="form-control" placeholder="Enter friend's username">
+                <button class="btn btn-primary mt-2" onclick="startGame()">Start Game</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="settingsHeading">
+              <h2 class="text-align-center">
+                <button
+                  class="btn btn-header no-outline collapsed"
+                  data-toggle="collapse"
+                  data-target="#settings"
+                  aria-expanded="false"
+                  aria-controls="settings"
+                  style="width:100%"
+                  id="playWithComputer"
+                >
+                  Play with computer
+                </button>
+              </h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Bootstrap JS and jQuery scripts at the end of the body -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    function startGame() {
+      // Add your logic here to start the game with the friend's username
+      // For now, we'll just display an alert as an example
+      const friendUsername = document.querySelector("#playWithFriendPanel input").value;
+      alert(`Starting the game with ${friendUsername}`);
+    }
+  </script>
+</body>
+</html>

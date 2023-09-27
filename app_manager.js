@@ -279,7 +279,7 @@ class ChessManager {
     const result = getOtherPlayersPiece.filter((e) =>
       this.#validMove(kingPiece, e, true)
     );
-    console.log("Result for threats to king", result);
+    //// console.log("Result for threats to king", result);
     return result;
   }
 

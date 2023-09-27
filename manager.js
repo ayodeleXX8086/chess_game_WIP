@@ -3,7 +3,7 @@ import { Board } from "./board";
 import { ChessMinmaxAI } from "./ai";
 export class ChessAppManager {
   constructor() {
-    console.log("Initialized before");
+    // console.log("Initialized before");
     this.gameBoard = document.querySelector("#gameboard");
     this.playerDisplay = document.querySelector("#player");
     this.infoDisplay = document.querySelector("#info-display");
@@ -16,11 +16,7 @@ export class ChessAppManager {
     this.selectedPieceCaptures = null;
     this.currentPosition = new Position(0, 0);
     this.prevPossibleMoves = [];
-    this.chessAI = new ChessMinmaxAI(
-      3,
-      this.board,
-      this.board.player === Player.BLACK ? Player.WHITE : Player.BLACK
-    );
+    this.chessAI = new ChessMinmaxAI(3, this.board);
     this.clonedGrid = ChessAppManager.cloneMatrix(this.board.grid);
     this.#displayPlayerAndScore();
   }
@@ -95,27 +91,24 @@ export class ChessAppManager {
     e.preventDefault();
     const currentPosition = this.getCurrentPosition(e.target);
     this.revertHighlightedColor();
-    if (this.selectedPiece) {
-      if (
-        this.selectedPieceCaptures.some((position) =>
-          position.isEqual(currentPosition)
-        ) ||
+    if (
+      this.selectedPiece &&
+      this.selectedPiece.position !== currentPosition &&
+      (this.selectedPieceCaptures.some((position) =>
+        position.isEqual(currentPosition)
+      ) ||
         this.selectedPieceMoves.some((position) =>
           position.isEqual(currentPosition)
-        )
-      ) {
-        this.moveChessPieceAndDisplay(
-          this.selectedPiece,
-          currentPosition,
-          false
-        );
-        if (this.board.player === this.chessAI.computer_player) {
-          const [piece, bestMove] = this.chessAI.start(0);
-          this.moveChessPieceAndDisplay(piece, bestMove, true);
-        }
-      } else {
-        this.infoDisplay.textContent = "You cannot go here\n";
+        ))
+    ) {
+      this.moveChessPieceAndDisplay(this.selectedPiece, currentPosition, false);
+      if (this.board.player === this.chessAI.computer_player) {
+        const [piece, bestMove] = this.chessAI.start(0);
+        console.log("Best move", bestMove, "Piece ", piece);
+        this.moveChessPieceAndDisplay(piece, bestMove, true);
       }
+    } else {
+      this.infoDisplay.textContent = "You cannot go here\n";
     }
   }
 
@@ -138,24 +131,24 @@ export class ChessAppManager {
     e.preventDefault();
     const currentPosition = this.getCurrentPosition(e.target);
     const piece = this.board.getPieceFromBoard(currentPosition);
-    console.log("Mouse enter", currentPosition);
-    console.log("Mouse enter", this.board.grid);
-    console.log(piece);
+    // // console.log("Mouse enter", currentPosition);
+    // // console.log("Mouse enter", this.board.grid);
+    // // console.log(piece);
     if (piece && piece.color === this.board.player) {
       const [validMoves, validCaptures] = this.board.getAllowedMoves(piece);
-      console.log("Valid moves", validMoves, "Valid captures", validCaptures);
+      // // console.log("Valid moves", validMoves, "Valid captures", validCaptures);
       this.prevPossibleMoves = [
         ...(validMoves || []),
         ...(validCaptures || []),
       ];
       this.prevPossibleMoves?.forEach((element) => {
-        console.log("Position element", element, this.chessSquares);
+        // // console.log("Position element", element, this.chessSquares);
         ChessAppManager.displayAsPossibleThreat(
           this.chessSquares[element.x][element.y]
         );
       });
     } else {
-      console.log("Cannot display piece ", piece);
+      // console.log("Cannot display piece ", piece);
     }
   }
 
@@ -166,7 +159,7 @@ export class ChessAppManager {
 
   revertHighlightedColor() {
     this.prevPossibleMoves?.forEach((element) => {
-      console.log("Position element", element, this.chessSquares);
+      // console.log("Position element", element, this.chessSquares);
       ChessAppManager.revertToSquareColorFromPossibleThreat(
         this.chessSquares[element.x][element.y]
       );
@@ -236,7 +229,7 @@ export class ChessAppManager {
   }
 
   static updateChessSquares(cloned_board, original_board, square_board) {
-    console.log("Update chess sqaure");
+    // console.log("Update chess sqaure");
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         if (cloned_board[i][j] !== original_board[i][j]) {

@@ -1,10 +1,10 @@
 import { Piece } from "./piece.js";
 import { Position, PieceType } from "../utils.js";
 export class Knight extends Piece {
-  constructor(position, color, upward) {
-    super(position, color, upward);
+  constructor(position, color, upward, aiPlayer) {
+    super(position, color, upward, aiPlayer);
     this.code = PieceType.KNIGHT;
-    this.score = 3;
+    this.score = 3 * this.multiplier;
   }
 
   getMoves(board) {
@@ -15,8 +15,8 @@ export class Knight extends Piece {
       if (i !== 0) {
         for (let j = -2; j <= 2; j++) {
           if (j !== 0) {
-            const dx = this.position.x + i;
-            const dy = this.position.y + j;
+            const dx = this.position.x + j;
+            const dy = this.position.y + i;
             const temp = new Position(dx, dy);
             if (Math.abs(i) !== Math.abs(j) && board.isWithinBoard(temp)) {
               if (!board.grid[dx][dy]) {

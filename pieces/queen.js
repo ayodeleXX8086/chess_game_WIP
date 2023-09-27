@@ -2,10 +2,10 @@ import { Piece } from "./piece";
 import { movePatterns } from "./moves";
 import { PieceType } from "../utils.js";
 export class Queen extends Piece {
-  constructor(position, color, upward) {
-    super(position, color, upward);
+  constructor(position, color, upward, aiPlayer) {
+    super(position, color, upward, aiPlayer);
     this.code = PieceType.QUEEN;
-    this.score = 9;
+    this.score = 9 * this.multiplier;
   }
 
   getMoves(board) {

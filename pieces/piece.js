@@ -1,6 +1,8 @@
 import { Position, Player } from "../utils.js";
 export class Piece {
-  constructor(position, color, movement) {
+  constructor(position, color, movement, aiPlayer) {
+    this.aiPlayer = aiPlayer;
+    this.multiplier = aiPlayer ? 1 : -1;
     this.position = position;
     this.color = color; // White,  Black
     this.previousMove = null;
@@ -18,7 +20,7 @@ export class Piece {
     const moves = [];
     const captures = [];
     for (const pattern of patterns) {
-      const [m, c] = this.generator(board, ...pattern);
+      const [m, c] = this.generator(board, ...pattern.reverse());
       moves.push(...m);
       captures.push(...c);
     }
@@ -36,7 +38,7 @@ export class Piece {
     }
     if (
       board.isWithinBoard(pos) &&
-      board.grid[pos.x][pos.y] !== null &&
+      board.grid[pos.x][pos.y] &&
       board.grid[pos.x][pos.y].color !== this.color
     ) {
       captures.push(pos.getCopy());

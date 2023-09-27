@@ -3,6 +3,9 @@ import { Player, GRID, PieceType, Position } from "../utils.js";
 export class Board {
   constructor() {
     // Initialize an 8x8 matrix to represent the board
+    this.player = Player.WHITE;
+    this.computer_player =
+      this.player === Player.BLACK ? Player.WHITE : Player.BLACK;
     this.grid = this.#createGrid(GRID);
     this.historic = [];
     this.score = { black: 0, white: 0 };
@@ -13,7 +16,6 @@ export class Board {
     this.checkBlackKing = false;
     this.pieceToPromote = null;
     this.winner = null;
-    this.player = Player.BLACK;
     for (let pieces of this.grid) {
       for (let piece of pieces) {
         if (piece) {
@@ -55,7 +57,7 @@ export class Board {
       if (this.verifyMove(piece, move.getCopy())) {
         allowed_moves.push(move.getCopy());
       }
-      console.log("Allowed moves", allowed_moves);
+      // console.log("Allowed moves", allowed_moves);
     }
     return allowed_moves;
   }
@@ -64,7 +66,7 @@ export class Board {
     const [moves, captures] = piece.getMoves(this);
     const allowedMoves = this.allowedMoveList(piece, [...moves], false);
     const allowCaptures = this.allowedMoveList(piece, [...captures], false);
-    console.log("Valid moves", allowedMoves, "Valid capture", allowCaptures);
+    // console.log("Valid moves", allowedMoves, "Valid capture", allowCaptures);
     return [allowedMoves, allowCaptures];
   }
 
@@ -79,7 +81,7 @@ export class Board {
       if (this.isCastling(piece, position.getCopy())) {
         this.castleKing(piece, position.getCopy());
       } else if (this.isEnPassant(piece, position.getCopy())) {
-        this.grid[position.x][piece.position.y] = null;
+        this.grid[piece.position.x][position.y] = null;
         this.movePiece(piece, position);
         this.historic[this.historic.length - 1][2] = piece.code;
       } else {
@@ -122,7 +124,6 @@ export class Board {
       const playedId = this.player;
       const currentScore = prevPiece.score + this.score[playedId];
       this.score[playedId] = currentScore;
-      console.log("Current score ", currentScore, this.score);
     }
   }
 
@@ -227,42 +228,48 @@ export class Board {
             currPiece = new King(
               new Position(i, j),
               player_type,
-              player_type === Player.BLACK
+              player_type === Player.BLACK,
+              this.computer_player
             );
             break;
           case PieceType.QUEEN:
             currPiece = new Queen(
               new Position(i, j),
               player_type,
-              player_type === Player.BLACK
+              player_type === Player.BLACK,
+              this.computer_player
             );
             break;
           case PieceType.ROOK:
             currPiece = new Rook(
               new Position(i, j),
               player_type,
-              player_type === Player.BLACK
+              player_type === Player.BLACK,
+              this.computer_player
             );
             break;
           case PieceType.KNIGHT:
             currPiece = new Knight(
               new Position(i, j),
               player_type,
-              player_type === Player.BLACK
+              player_type === Player.BLACK,
+              this.computer_player
             );
             break;
           case PieceType.PAWN:
             currPiece = new Pawn(
               new Position(i, j),
               player_type,
-              player_type === Player.BLACK
+              player_type === Player.BLACK,
+              this.computer_player
             );
             break;
           case PieceType.BISHOP:
             currPiece = new Bishop(
               new Position(i, j),
               player_type,
-              player_type === Player.BLACK
+              player_type === Player.BLACK,
+              this.computer_player
             );
             break;
           case PieceType.EMPTY:

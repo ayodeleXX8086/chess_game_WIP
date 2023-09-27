@@ -2,10 +2,10 @@ import { Piece } from "./piece";
 import { movePatterns } from "./moves";
 import { PieceType } from "../utils.js";
 export class Rook extends Piece {
-  constructor(position, color, upward) {
-    super(position, color, upward);
+  constructor(position, color, upward, aiPlayer) {
+    super(position, color, upward, aiPlayer);
     this.code = PieceType.ROOK;
-    this.score = 5;
+    this.score = 5 * this.multiplier;
   }
 
   getMoves(board) {

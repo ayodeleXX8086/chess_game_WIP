@@ -1,16 +1,16 @@
 import { Piece } from "./piece";
 import { Position, Player, PieceType } from "../utils.js";
 export class Pawn extends Piece {
-  constructor(position, color, upward) {
-    super(position, color, upward);
+  constructor(position, color, upward, isAI) {
+    super(position, color, upward, isAI);
     this.code = PieceType.PAWN;
-    this.score = 1;
+    this.score = 1 * this.multiplier;
   }
 
   enPassant(board, change) {
     const moves = [];
     for (const i of [-1, 1]) {
-      const tempPos = new Position(this.position.x + i, this.position.y);
+      const tempPos = new Position(this.position.x, this.position.y + i);
       if (board.isWithinBoard(tempPos)) {
         const pieceToCapture = board.grid[tempPos.x][tempPos.y];
         if (
@@ -19,13 +19,13 @@ export class Pawn extends Piece {
         ) {
           const previousMove = board.recentMove();
           if (
-            previousMove !== null &&
+            previousMove &&
             previousMove[2] === this.code &&
-            previousMove[4].x === this.position.x + i &&
-            Math.abs(previousMove[4].y - previousMove[3].y) === 2
+            previousMove[4].y === this.position.y + i &&
+            Math.abs(previousMove[4].x - previousMove[3].x) === 2
           ) {
             moves.push(
-              new Position(this.position.x + i, this.position.y + change)
+              new Position(this.position.x + change, this.position.y + i)
             );
           }
         }

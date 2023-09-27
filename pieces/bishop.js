@@ -2,10 +2,10 @@ import { Piece } from "./piece.js";
 import { movePatterns } from "./moves";
 import { PieceType } from "../utils.js";
 export class Bishop extends Piece {
-  constructor(position, color, upward) {
-    super(position, color, upward);
+  constructor(position, color, upward, isAI) {
+    super(position, color, upward, isAI);
     this.code = PieceType.BISHOP;
-    this.score = 3;
+    this.score = 3 * this.multiplier;
   }
 
   getMoves(board) {

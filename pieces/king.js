@@ -1,14 +1,14 @@
 import { Piece } from "./piece.js";
 import { Position, PieceType } from "../utils.js";
 export class King extends Piece {
-  constructor(position, color, upward) {
-    super(position, color, upward);
+  constructor(position, color, upward, aiPlayer) {
+    super(position, color, upward, aiPlayer);
     this.code = PieceType.KING;
-    this.score = 100;
+    this.score = 100 * this.multiplier;
   }
 
   canCastle(piece) {
-    return piece !== null && !piece.previousMove;
+    return piece && !piece.previousMove;
   }
 
   castle(board) {

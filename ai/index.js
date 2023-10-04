@@ -9,7 +9,7 @@ export class ChessMinmaxAI {
     this.computer_player = this.board.computer_player;
   }
 
-  start(depth) {
+  start() {
     let bestMove = null;
     let bestScore = -9999;
     let currentPiece = null;
@@ -22,17 +22,19 @@ export class ChessMinmaxAI {
     for (const pieces of this.board.grid) {
       for (const piece of pieces) {
         if (piece?.color === this.board.player) {
+          //console.log("Before", piece.code, piece.color, piece.position);
           const [moves, captures] = this.board.getAllowedMoves(piece, true);
+          //console.log("After", piece.code, piece.color, piece.position);
           const possibleMoves = captures.concat(moves);
 
           for (const position of possibleMoves) {
             const prevPos = piece.position;
             const pion = this.board.moveSimulation(piece, position);
-            let score = this.minimax(depth + 1, !isMaximizer, -10000, 10000);
+            let score = this.minimax(1, !isMaximizer, -10000, 10000);
 
             if (
               piece instanceof Pawn &&
-              (position.x === 7 || position.x === 0)
+              (position.row === 7 || position.row === 0)
             ) {
               score += 80;
             } else if (this.board.isEnPassant(piece, position)) {
@@ -56,6 +58,17 @@ export class ChessMinmaxAI {
               this.board.moveSimulation(piece, prevPos);
               this.board.moveSimulation(pion, position);
             }
+            console.log(
+              "Score ",
+              score,
+              piece.color,
+              piece.position,
+              piece.code,
+              pion,
+              bestScore,
+              bestMove,
+              currentPiece?.code
+            );
           }
         }
       }
@@ -66,7 +79,7 @@ export class ChessMinmaxAI {
 
   minimax(depth, isMaximizer, alpha, beta) {
     if (this.depth === depth) {
-      return this.evaluate();
+      return this.evaluate() * -1;
     }
 
     if (isMaximizer) {
@@ -131,7 +144,7 @@ export class ChessMinmaxAI {
         if (piece) {
           const p_map = pieceMap(piece, this.computer_player);
           let score = piece.score;
-          score += p_map[piece.position.x][piece.position.y];
+          score += p_map[piece.position.row][piece.position.col];
           // console.log("Score ", score, "piece", piece);
           totalScore += score;
         }
@@ -156,14 +169,14 @@ export class ChessMinmaxAI {
     const [moves, captures] = this.board.getAllowedMoves(piece, true);
 
     for (const pos of captures) {
-      if (this.board.grid[pos.x][pos.y]) {
+      if (this.board.grid[pos.row][pos.col]) {
         bestMoves.push([
-          10 * this.board.grid[pos.x][pos.y].score - piece.score,
+          10 * this.board.grid[pos.row][pos.col].score - piece.score,
           piece,
           pos,
         ]);
 
-        if (piece instanceof Pawn && pos.x === position) {
+        if (piece instanceof Pawn && pos.row === position) {
           bestMoves[bestMoves.length - 1][0] += 90;
         }
       } else {
@@ -172,7 +185,7 @@ export class ChessMinmaxAI {
     }
 
     for (const pos of moves) {
-      if (piece instanceof Pawn && pos.x === position) {
+      if (piece instanceof Pawn && pos.row === position) {
         bestMoves.push([90, piece, pos]);
       } else {
         bestMoves.push([0, piece, pos]);

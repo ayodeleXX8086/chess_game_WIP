@@ -71,7 +71,7 @@ export class Board {
   }
 
   isValidPick(position) {
-    const piece = this.grid[position.x][position.y];
+    const piece = this.grid[position.row][position.col];
     return piece && piece.color === this.player;
   }
 
@@ -81,7 +81,7 @@ export class Board {
       if (this.isCastling(piece, position.getCopy())) {
         this.castleKing(piece, position.getCopy());
       } else if (this.isEnPassant(piece, position.getCopy())) {
-        this.grid[piece.position.x][position.y] = null;
+        this.grid[piece.position.row][position.col] = null;
         this.movePiece(piece, position);
         this.historic[this.historic.length - 1][2] = piece.code;
       } else {
@@ -90,7 +90,7 @@ export class Board {
 
       if (
         piece instanceof Pawn &&
-        (piece.position.x === 0 || piece.position.x === 7)
+        (piece.position.row === 0 || piece.position.row === 7)
       ) {
         this.pieceToPromote = piece;
       } else {
@@ -104,10 +104,10 @@ export class Board {
   movePiece(piece, position) {
     position = position.getCopy();
     const prevPiece = this.getPieceFromBoard(position);
-    this.grid[piece.position.x][piece.position.y] = null;
+    this.grid[piece.position.row][piece.position.col] = null;
     const oldPosition = piece.position.getCopy();
     piece.updatePosition(position);
-    this.grid[position.x][position.y] = piece;
+    this.grid[position.row][position.col] = piece;
     this.historic.push([
       this.moveIndex,
       piece.color,
@@ -122,19 +122,22 @@ export class Board {
     this.checkWhiteKing = false;
     if (prevPiece) {
       const playedId = this.player;
-      const currentScore = prevPiece.score + this.score[playedId];
+      const currentScore = Math.abs(prevPiece.score) + this.score[playedId];
       this.score[playedId] = currentScore;
     }
   }
 
   isWithinBoard(position) {
     return (
-      position.x >= 0 && position.x < 8 && position.y >= 0 && position.y < 8
+      position.row >= 0 &&
+      position.row < 8 &&
+      position.col >= 0 &&
+      position.col < 8
     );
   }
 
   getPieceFromBoard(position) {
-    return this.grid[position.x][position.y];
+    return this.grid[position.row][position.col];
   }
 
   verifyMove(piece, move) {
@@ -142,41 +145,39 @@ export class Board {
     const oldPosition = piece.position.getCopy();
     let captureEnPassant = null;
 
-    const capturedPiece = this.grid[position.x][position.y];
+    const capturedPiece = this.grid[position.row][position.col];
 
     if (this.isEnPassant(piece, position)) {
-      captureEnPassant = this.grid[position.x][oldPosition.y];
-      this.grid[position.x][oldPosition.y] = null;
+      captureEnPassant = this.grid[position.row][oldPosition.col];
+      this.grid[position.row][oldPosition.col] = null;
     }
 
-    this.grid[oldPosition.x][oldPosition.y] = null;
-    this.grid[position.x][position.y] = piece;
+    this.grid[oldPosition.row][oldPosition.col] = null;
+    this.grid[position.row][position.col] = piece;
     piece.updatePosition(move);
 
     const EnemyCaptures = this.getEnemyCaptures(this.player);
 
     if (
-      (this.WhiteKing.position.isEqual(position) &&
+      (this.WhiteKing.position.equals(position) &&
         piece.color === Player.BLACK) ||
-      (this.BlackKing.position.isEqual(position) &&
-        piece.color === Player.WHITE)
+      (this.BlackKing.position.equals(position) && piece.color === Player.WHITE)
     ) {
       this.undoMove(piece, capturedPiece, oldPosition, position);
       if (captureEnPassant) {
-        this.grid[position.x][oldPosition.y] = captureEnPassant;
+        this.grid[position.row][oldPosition.col] = captureEnPassant;
       }
       return false;
     }
 
     for (let pos of EnemyCaptures) {
       if (
-        (this.WhiteKing.position.isEqual(pos) &&
-          piece.color === Player.BLACK) ||
-        (this.BlackKing.position.isEqual(pos) && piece.color === Player.WHITE)
+        (this.WhiteKing.position.equals(pos) && piece.color === Player.BLACK) ||
+        (this.BlackKing.position.equals(pos) && piece.color === Player.WHITE)
       ) {
         this.undoMove(piece, capturedPiece, oldPosition, position);
         if (captureEnPassant) {
-          this.grid[position.x][oldPosition.y] = captureEnPassant;
+          this.grid[position.row][oldPosition.col] = captureEnPassant;
         }
         return false;
       }
@@ -184,14 +185,14 @@ export class Board {
 
     this.undoMove(piece, capturedPiece, oldPosition, position);
     if (captureEnPassant) {
-      this.grid[position.x][oldPosition.y] = captureEnPassant;
+      this.grid[position.row][oldPosition.col] = captureEnPassant;
     }
     return true;
   }
 
   undoMove(piece, captured, oldPos, pos) {
-    this.grid[oldPos.x][oldPos.y] = piece;
-    this.grid[pos.x][pos.y] = captured;
+    this.grid[oldPos.row][oldPos.col] = piece;
+    this.grid[pos.row][pos.col] = captured;
     piece.updatePosition(oldPos);
   }
 
@@ -210,7 +211,7 @@ export class Board {
 
   applyPiece(piece) {
     if (this.is_within_board(piece.position)) {
-      this.grid[piece.position.x][piece.position.y] = piece;
+      this.grid[piece.position.row][piece.position.col] = piece;
     }
   }
 
@@ -229,7 +230,7 @@ export class Board {
               new Position(i, j),
               player_type,
               player_type === Player.BLACK,
-              this.computer_player
+              this.computer_player === player_type
             );
             break;
           case PieceType.QUEEN:
@@ -237,7 +238,7 @@ export class Board {
               new Position(i, j),
               player_type,
               player_type === Player.BLACK,
-              this.computer_player
+              this.computer_player === player_type
             );
             break;
           case PieceType.ROOK:
@@ -245,7 +246,7 @@ export class Board {
               new Position(i, j),
               player_type,
               player_type === Player.BLACK,
-              this.computer_player
+              this.computer_player === player_type
             );
             break;
           case PieceType.KNIGHT:
@@ -253,7 +254,7 @@ export class Board {
               new Position(i, j),
               player_type,
               player_type === Player.BLACK,
-              this.computer_player
+              this.computer_player === player_type
             );
             break;
           case PieceType.PAWN:
@@ -261,7 +262,7 @@ export class Board {
               new Position(i, j),
               player_type,
               player_type === Player.BLACK,
-              this.computer_player
+              this.computer_player === player_type
             );
             break;
           case PieceType.BISHOP:
@@ -269,7 +270,7 @@ export class Board {
               new Position(i, j),
               player_type,
               player_type === Player.BLACK,
-              this.computer_player
+              this.computer_player === player_type
             );
             break;
           case PieceType.EMPTY:
@@ -283,7 +284,9 @@ export class Board {
   }
 
   isCastling(king, position) {
-    return king instanceof King && Math.abs(king.position.x - position.x) > 1;
+    return (
+      king instanceof King && Math.abs(king.position.row - position.row) > 1
+    );
   }
 
   isEnPassant(piece, newPos) {
@@ -298,7 +301,7 @@ export class Board {
       moves = piece.enPassant(this, 1);
     }
 
-    return moves.some((move) => move.isEqual(newPos));
+    return moves.some((move) => move.equals(newPos));
   }
 
   isInCheck(piece) {
@@ -312,22 +315,22 @@ export class Board {
   castleKing(king, position) {
     position = position.getCopy();
 
-    if (position.x === 2 || position.x === 6) {
+    if (position.row === 2 || position.row === 6) {
       let rook;
-      if (position.x === 2) {
-        rook = this.grid[0][king.position.y];
+      if (position.row === 2) {
+        rook = this.grid[0][king.position.col];
         this.movePiece(king, position);
-        this.grid[0][rook.position.y] = null;
-        rook.position.x = 3;
+        this.grid[0][rook.position.col] = null;
+        rook.position.row = 3;
       } else {
-        rook = this.grid[7][king.position.y];
+        rook = this.grid[7][king.position.col];
         this.movePiece(king, position);
-        this.grid[7][rook.position.y] = null;
-        rook.position.x = 5;
+        this.grid[7][rook.position.col] = null;
+        rook.position.row = 5;
       }
 
       rook.previousMove = this.moveIndex - 1;
-      this.grid[rook.position.x][rook.position.y] = rook;
+      this.grid[rook.position.row][rook.position.col] = rook;
       this.historic[this.historic.length - 1][2] = king.code;
     }
   }
@@ -351,23 +354,23 @@ export class Board {
         break;
     }
 
-    this.grid[pawn.position.x][pawn.position.y] = newPiece;
+    this.grid[pawn.position.row][pawn.position.col] = newPiece;
     this.switchTurn();
     this.check();
     this.pieceToPromote = null;
   }
 
   moveSimulation(piece, next_pos) {
-    if (!this.grid[next_pos.x][next_pos.y]) {
-      this.grid[piece.position.x][piece.position.y] = null;
+    if (!this.grid[next_pos.row][next_pos.col]) {
+      this.grid[piece.position.row][piece.position.col] = null;
       piece.position = next_pos.getCopy();
-      this.grid[next_pos.x][next_pos.y] = piece;
+      this.grid[next_pos.row][next_pos.col] = piece;
       return null;
     } else {
-      const prev_piece = this.grid[next_pos.x][next_pos.y];
-      this.grid[piece.position.x][piece.position.y] = null;
+      const prev_piece = this.grid[next_pos.row][next_pos.col];
+      this.grid[piece.position.row][piece.position.col] = null;
       piece.position = next_pos.getCopy();
-      this.grid[next_pos.x][next_pos.y] = piece;
+      this.grid[next_pos.row][next_pos.col] = piece;
       return prev_piece;
     }
   }
@@ -384,7 +387,7 @@ export class Board {
       for (let piece of pieces) {
         if (piece && piece.color !== this.player) {
           const [moves, captures] = this.getAllowedMoves(piece);
-          if (captures.some((pos) => pos.isEqual(king.position))) {
+          if (captures.some((pos) => pos.equals(king.position))) {
             if (this.player === 1) {
               this.checkBlackKing = true;
               return;

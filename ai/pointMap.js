@@ -90,7 +90,7 @@ export function pieceMap(piece, computer_player) {
   }
 
   // check color of piece
-  if (piece.color === computer_player) {
+  if (piece.color !== computer_player) {
     return pieceMap;
   } else {
     return pieceMap.map((row) => row.map((value) => value * -1));

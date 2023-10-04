@@ -131,29 +131,29 @@ const PIECE_MAP = {
 
 class Position {
   constructor(x, y) {
-    this.x = x;
-    this.y = y;
+    this.row = x;
+    this.col = y;
     this.index = x * 8 + y;
   }
 
-  isEqual(other) {
+  equals(other) {
     if (!other) {
       return false;
     } else {
-      return this.x === other.x && this.y === other.y;
+      return this.row === other.row && this.col === other.col;
     }
   }
 
   getCopy() {
-    return new Position(this.x, this.y);
+    return new Position(this.row, this.col);
   }
 
   getTuple() {
-    return [this.x, this.y];
+    return [this.row, this.col];
   }
 
   toString() {
-    return `(${this.x}, ${this.y})`;
+    return `(${this.row}, ${this.col})`;
   }
 }
 

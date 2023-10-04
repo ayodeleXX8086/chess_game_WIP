@@ -5,7 +5,7 @@ export class Queen extends Piece {
   constructor(position, color, upward, aiPlayer) {
     super(position, color, upward, aiPlayer);
     this.code = PieceType.QUEEN;
-    this.score = 9 * this.multiplier;
+    this.score = 90 * this.multiplier;
   }
 
   getMoves(board) {

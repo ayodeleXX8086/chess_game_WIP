@@ -5,7 +5,7 @@ export class Bishop extends Piece {
   constructor(position, color, upward, isAI) {
     super(position, color, upward, isAI);
     this.code = PieceType.BISHOP;
-    this.score = 3 * this.multiplier;
+    this.score = 30 * this.multiplier;
   }
 
   getMoves(board) {

@@ -36,6 +36,15 @@ Key Methods and Properties:
 - `getMoves(piece, position)`: Retrieves possible moves and captures for a piece.
 - `legalMoves(color, pos)`: Generates a list of legal moves and captures for a given player and position.
 
+### Break down of ChessMinmaxAI algorithm
+
+- `Piece Evaluation (mapPoints)`: The code defines an array called mapPoints, which stores evaluation scores for different chess pieces at different positions on the board. These scores are used to evaluate the strength of the board position. The array is indexed by piece type (pawn, bishop, knight, rook, queen, and king) and contains a matrix of values that represent how valuable each square on the board is for that particular piece.
+
+- `pieceMap Function`:
+  - The pieceMap function takes a chess piece and a computer player as input and returns a 2D array (matrix) representing the evaluation scores for that piece at different positions on the board.
+  - It checks the type of the input piece (e.g., pawn, bishop, knight) and retrieves the corresponding evaluation matrix from mapPoints.
+  - If the piece belongs to the computer player, it negates all the values in the evaluation matrix to reflect the evaluation from the computer's perspective.
+
 ### Board
 
 The `Board` class represents the chessboard and manages game state, including piece placement, moves, and checking for game over conditions.

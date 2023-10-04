@@ -9,7 +9,7 @@ describe("Board", () => {
   const chessMinmaxAi = new ChessMinmaxAI(3, board, true);
 
   it("should initialize an empty 8x8 chessboard", () => {
-    const piece = board.getPieceFromBoard({ x: 0, y: 0 });
+    const piece = board.getPieceFromBoard({ row: 0, col: 0 });
 
     // Check if the piece is not null (exists) and has a color property equal to 'black'.
     expect(piece).not.toBeNull();
@@ -17,14 +17,14 @@ describe("Board", () => {
   });
 
   it("Make a move and AI move", () => {
-    const piece = board.getPieceFromBoard({ x: 6, y: 7 });
+    const piece = board.getPieceFromBoard({ row: 6, col: 7 });
     const [moves, captures] = piece.getMoves(board);
     expect(piece.position).toEqual(new Position(6, 7));
     expect(piece.color).toBe(Player.WHITE);
-    expect(moves.some((e) => e.equals(new Position(5, 7)))).toBe(true);
+    expect(moves.some((e) => e.equals(new Position(4, 7)))).toBe(true);
     board.move(piece, new Position(4, 7));
     const [currPiece, move] = chessMinmaxAi.start();
-    console.log(currPiece);
+    console.log(currPiece, move);
   });
 
   //   it("should place and retrieve chess pieces correctly", () => {

@@ -5,7 +5,7 @@ export class Rook extends Piece {
   constructor(position, color, upward, aiPlayer) {
     super(position, color, upward, aiPlayer);
     this.code = PieceType.ROOK;
-    this.score = 5 * this.multiplier;
+    this.score = 50 * this.multiplier;
   }
 
   getMoves(board) {

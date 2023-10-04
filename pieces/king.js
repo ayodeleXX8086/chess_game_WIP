@@ -4,7 +4,7 @@ export class King extends Piece {
   constructor(position, color, upward, aiPlayer) {
     super(position, color, upward, aiPlayer);
     this.code = PieceType.KING;
-    this.score = 100 * this.multiplier;
+    this.score = 900 * this.multiplier;
   }
 
   canCastle(piece) {
@@ -13,28 +13,28 @@ export class King extends Piece {
 
   castle(board) {
     const castles = [];
-    const rightRook = board.grid[7][this.position.y];
-    const leftRook = board.grid[0][this.position.y];
+    const rightRook = board.grid[this.position.row][7];
+    const leftRook = board.grid[this.position.row][0];
 
     // check if the king hasn't moved
     // check if there is no piece between the rooks and the king
     if (!this.previousMove) {
       // CASTLE LEFT
       if (
-        !board.grid[1][this.position.y] &&
-        !board.grid[2][this.position.y] &&
-        !board.grid[3][this.position.y] &&
+        !board.grid[this.position.row][1] &&
+        !board.grid[this.position.row][2] &&
+        !board.grid[this.position.row][3] &&
         this.canCastle(leftRook)
       ) {
-        castles.push(new Position(2, this.position.y));
+        castles.push(new Position(this.position.row, 2));
       }
       // CASTLE RIGHT
       if (
-        !board.grid[5][this.position.y] &&
-        !board.grid[6][this.position.y] &&
+        !board.grid[this.position.row][5] &&
+        !board.grid[this.position.row][6] &&
         this.canCastle(rightRook)
       ) {
-        castles.push(new Position(6, this.position.y));
+        castles.push(new Position(this.position.row, 6));
       }
     }
 
@@ -46,10 +46,10 @@ export class King extends Piece {
     const captures = [];
     const castles = this.castle(board);
 
-    for (let x = -1; x <= 1; x++) {
-      for (let y = -1; y <= 1; y++) {
-        const dx = this.position.x + x;
-        const dy = this.position.y + y;
+    for (let y = -1; y <= 1; y++) {
+      for (let x = -1; x <= 1; x++) {
+        const dx = this.position.row + x;
+        const dy = this.position.col + y;
         const temp = new Position(dx, dy);
         if ((x !== 0 || y !== 0) && board.isWithinBoard(temp)) {
           if (!board.grid[dx][dy]) {

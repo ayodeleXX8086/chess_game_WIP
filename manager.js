@@ -60,9 +60,9 @@ export class ChessAppManager {
     }
     if (
       this.board.pieceToPromote &&
-      this.currentPosition.x === this.board.pieceToPromote.position.x
+      this.currentPosition.row === this.board.pieceToPromote.position.row
     ) {
-      const choice = this.currentPosition.y;
+      const choice = this.currentPosition.col;
       if (choice <= 3 && this.board.player === Player.BLACK) {
         this.board.promotePawn(this.board.pieceToPromote, choice);
       } else if (choice > 3 && this.board.player === Player.WHITE) {
@@ -95,10 +95,10 @@ export class ChessAppManager {
       this.selectedPiece &&
       this.selectedPiece.position !== currentPosition &&
       (this.selectedPieceCaptures.some((position) =>
-        position.isEqual(currentPosition)
+        position.equals(currentPosition)
       ) ||
         this.selectedPieceMoves.some((position) =>
-          position.isEqual(currentPosition)
+          position.equals(currentPosition)
         ))
     ) {
       this.moveChessPieceAndDisplay(this.selectedPiece, currentPosition, false);
@@ -144,7 +144,7 @@ export class ChessAppManager {
       this.prevPossibleMoves?.forEach((element) => {
         // // console.log("Position element", element, this.chessSquares);
         ChessAppManager.displayAsPossibleThreat(
-          this.chessSquares[element.x][element.y]
+          this.chessSquares[element.row][element.col]
         );
       });
     } else {
@@ -161,7 +161,7 @@ export class ChessAppManager {
     this.prevPossibleMoves?.forEach((element) => {
       // console.log("Position element", element, this.chessSquares);
       ChessAppManager.revertToSquareColorFromPossibleThreat(
-        this.chessSquares[element.x][element.y]
+        this.chessSquares[element.row][element.col]
       );
     });
     this.prevPossibleMoves = [];
@@ -171,7 +171,7 @@ export class ChessAppManager {
     const square = document.createElement("div");
     square.classList.add("square");
     var square_color;
-    if (position.x % 2 === 0) {
+    if (position.row % 2 === 0) {
       square_color = position.index % 2 === 0 ? "beige" : "brown";
     } else {
       square_color = position.index % 2 === 0 ? "brown" : "beige";

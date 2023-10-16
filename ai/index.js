@@ -22,9 +22,7 @@ export class ChessMinmaxAI {
     for (const pieces of this.board.grid) {
       for (const piece of pieces) {
         if (piece?.color === this.board.player) {
-          //console.log("Before", piece.code, piece.color, piece.position);
           const [moves, captures] = this.board.getAllowedMoves(piece, true);
-          //console.log("After", piece.code, piece.color, piece.position);
           const possibleMoves = captures.concat(moves);
 
           for (const position of possibleMoves) {
@@ -58,17 +56,17 @@ export class ChessMinmaxAI {
               this.board.moveSimulation(piece, prevPos);
               this.board.moveSimulation(pion, position);
             }
-            console.log(
-              "Score ",
-              score,
-              piece.color,
-              piece.position,
-              piece.code,
-              pion,
-              bestScore,
-              bestMove,
-              currentPiece?.code
-            );
+            // console.log(
+            //   "Score ",
+            //   score,
+            //   piece.color,
+            //   piece.position,
+            //   piece.code,
+            //   pion,
+            //   bestScore,
+            //   bestMove,
+            //   currentPiece?.code
+            // );
           }
         }
       }

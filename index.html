@@ -20,6 +20,11 @@
             <div class="col-md-12 justify-content-center">
               <button class="btn btn-danger" id="undoBtn">End game</button>
             </div>
+            <div class="col-md-12 justify-content-center">
+              <button class="btn btn-danger" id="exitBtn" style="display: none">
+                Exit game
+              </button>
+            </div>
           </div>
         </div>
         <div class="col-4">
@@ -49,6 +54,127 @@
         </div>
       </div>
     </div>
+    <div
+      class="modal fade"
+      id="pieceSelectionModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="pieceSelectionModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="pieceSelectionModalLabel">
+              Select a Piece
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="queenOption">
+                  <input type="radio" name="pieceOption" id="queenOption" />
+                  Queen
+                </label>
+                <div class="piece" id="queenPiece">
+                  <!-- Queen SVG image goes here -->
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="bishopOption">
+                  <input type="radio" name="pieceOption" id="bishopOption" />
+                  Bishop
+                </label>
+                <div class="piece" id="bishopPiece">
+                  <!-- Bishop SVG image goes here -->
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <label for="knightOption">
+                  <input type="radio" name="pieceOption" id="knightOption" />
+                  Knight
+                </label>
+                <div class="piece" id="knightPiece">
+                  <!-- Knight SVG image goes here -->
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="rookOption">
+                  <input type="radio" name="pieceOption" id="rookOption" />
+                  Rook
+                </label>
+                <div class="piece" id="rookPiece">
+                  <!-- Rook SVG image goes here -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="selectPieceButton"
+            >
+              Select
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="modal fade"
+      id="resultModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="resultModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="resultModalLabel">Game Result</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Add your win or loss message here -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="/__dist__/js/jquery-3.3.1.slim.min.js"></script>
     <script src="/__dist__/js/popper.min.js"></script>
     <script src="/__dist__/js/bootstrap.min.js"></script>

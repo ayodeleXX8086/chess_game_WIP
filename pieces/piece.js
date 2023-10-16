@@ -19,7 +19,8 @@ export class Piece {
     const moves = [];
     const captures = [];
     for (const pattern of patterns) {
-      const [m, c] = this.generator(board, ...pattern.reverse());
+      //console.log("Pattern", pattern, "Reverse", [...pattern].reverse());
+      const [m, c] = this.generator(board, ...[...pattern].reverse());
       moves.push(...m);
       captures.push(...c);
     }

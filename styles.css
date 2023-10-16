@@ -61,3 +61,13 @@
 .highlighted-blue {
   box-shadow: inset 0 0 3px 3px blue;
 }
+
+.modal {
+  background: rgba(0, 0, 0, 0.5); /* Transparent background */
+}
+
+.modal-content {
+  background: transparent; /* Transparent content */
+  border: none; /* No border */
+  box-shadow: none; /* No shadow */
+}

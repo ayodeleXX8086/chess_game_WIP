@@ -93,6 +93,8 @@ export function pieceMap(piece, computer_player) {
   if (piece.color !== computer_player) {
     return pieceMap;
   } else {
-    return pieceMap.map((row) => row.map((value) => value * -1));
+    return [...pieceMap]
+      .reverse()
+      .map((row) => [...row].reverse().map((value) => value * -1));
   }
 }

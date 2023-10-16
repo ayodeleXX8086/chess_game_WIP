@@ -1,4 +1,4 @@
-import { Position, Player, PIECE_MAP } from "./utils.js";
+import { Position, Player, PIECE_MAP, PieceType } from "./utils.js";
 import { Board } from "./board";
 import { ChessMinmaxAI } from "./ai";
 export class ChessAppManager {
@@ -9,7 +9,15 @@ export class ChessAppManager {
     this.infoDisplay = document.querySelector("#info-display");
     this.displayBlackScore = document.querySelector("#score_black");
     this.displayWhiteScore = document.querySelector("#score_white");
+    //this.utnBtn = document.querySelector("#undoBtn");
     this.board = new Board();
+    this.selectionPromo = {
+      knightOption: PieceType.KNIGHT,
+      rookOption: PieceType.ROOK,
+      bishopOption: PieceType.BISHOP,
+      queenOption: PieceType.QUEEN,
+    };
+    this.selectedPiecePromo = null;
     this.chessSquares = this.#createBoard(this.gameBoard, this.board);
     this.selectedPiece = null;
     this.selectedPieceMoves = null;
@@ -19,12 +27,18 @@ export class ChessAppManager {
     this.chessAI = new ChessMinmaxAI(3, this.board);
     this.clonedGrid = ChessAppManager.cloneMatrix(this.board.grid);
     this.#displayPlayerAndScore();
+    this.initialization();
   }
 
   #displayPlayerAndScore() {
     this.playerDisplay.textContent = this.board.player;
     this.displayBlackScore.textContent = this.board.score[Player.BLACK];
     this.displayWhiteScore.textContent = this.board.score[Player.WHITE];
+    if (this.board.checkBlackKing || this.board.checkWhiteKing) {
+      this.infoDisplay.textContent = this.board.checkWhiteKing
+        ? "White king is on check"
+        : "Black king is on check";
+    }
   }
 
   getCurrentPosition(element) {
@@ -58,29 +72,11 @@ export class ChessAppManager {
     if (!this.board.isValidPick(this.currentPosition)) {
       this.infoDisplay.textContent = "You cannot pick this";
     }
-    if (
-      this.board.pieceToPromote &&
-      this.currentPosition.row === this.board.pieceToPromote.position.row
-    ) {
-      const choice = this.currentPosition.col;
-      if (choice <= 3 && this.board.player === Player.BLACK) {
-        this.board.promotePawn(this.board.pieceToPromote, choice);
-      } else if (choice > 3 && this.board.player === Player.WHITE) {
-        this.board.promotePawn(this.board.pieceToPromote, 7 - choice);
-      }
-      ChessAppManager.updateChessSquares(
-        this.clonedGrid,
-        this.board.grid,
-        this.chessSquares
-      );
-      return;
-    } else {
-      const piece = this.board.getPieceFromBoard(this.currentPosition);
-      if (piece) {
-        this.selectedPiece = piece;
-        [this.selectedPieceMoves, this.selectedPieceCaptures] =
-          this.board.getAllowedMoves(this.selectedPiece);
-      }
+    const piece = this.board.getPieceFromBoard(this.currentPosition);
+    if (piece) {
+      this.selectedPiece = piece;
+      [this.selectedPieceMoves, this.selectedPieceCaptures] =
+        this.board.getAllowedMoves(this.selectedPiece);
     }
   }
   dragOver(e) {
@@ -104,7 +100,7 @@ export class ChessAppManager {
       this.moveChessPieceAndDisplay(this.selectedPiece, currentPosition, false);
       if (this.board.player === this.chessAI.computer_player) {
         const [piece, bestMove] = this.chessAI.start(0);
-        console.log("Best move", bestMove, "Piece ", piece);
+        // console.log("Best move", bestMove, "Piece ", piece);
         this.moveChessPieceAndDisplay(piece, bestMove, true);
       }
     } else {
@@ -114,9 +110,26 @@ export class ChessAppManager {
 
   moveChessPieceAndDisplay(piece, currentPosition, AI) {
     this.board.move(piece, currentPosition);
-    if (AI && this.board.grid) {
-      if (this.board.pieceToPromote) {
-        this.board.promotePawn(this.board.pieceToPromote, 0);
+    if (this.board.pieceToPromote) {
+      const choice = this.board.pieceToPromote.position.col;
+      if (AI) {
+        this.board.promotePawn(
+          this.board.pieceToPromote,
+          choice >= 3 ? choice : 7 - choice
+        );
+      } else {
+        this.pieceSelectionModal.show();
+        if (this.selectedPiecePromo) {
+          this.board.promotePawn(
+            this.board.pieceToPromote,
+            this.selectedPiecePromo
+          );
+        } else {
+          this.board.promotePawn(
+            this.board.pieceToPromote,
+            choice >= 3 ? choice : 7 - choice
+          );
+        }
       }
     }
     ChessAppManager.updateChessSquares(
@@ -131,24 +144,17 @@ export class ChessAppManager {
     e.preventDefault();
     const currentPosition = this.getCurrentPosition(e.target);
     const piece = this.board.getPieceFromBoard(currentPosition);
-    // // console.log("Mouse enter", currentPosition);
-    // // console.log("Mouse enter", this.board.grid);
-    // // console.log(piece);
     if (piece && piece.color === this.board.player) {
       const [validMoves, validCaptures] = this.board.getAllowedMoves(piece);
-      // // console.log("Valid moves", validMoves, "Valid captures", validCaptures);
       this.prevPossibleMoves = [
         ...(validMoves || []),
         ...(validCaptures || []),
       ];
       this.prevPossibleMoves?.forEach((element) => {
-        // // console.log("Position element", element, this.chessSquares);
         ChessAppManager.displayAsPossibleThreat(
           this.chessSquares[element.row][element.col]
         );
       });
-    } else {
-      // console.log("Cannot display piece ", piece);
     }
   }
 
@@ -165,6 +171,59 @@ export class ChessAppManager {
       );
     });
     this.prevPossibleMoves = [];
+  }
+  initialization() {
+    document.getElementById("undoBtn").addEventListener("click", () => {
+      this.displayResult("Game over sorry");
+
+      document.getElementById("exitBtn").style.display = "block";
+      document.getElementById("undoBtn").style.display = "none";
+      document.getElementById("gameboard").style.pointerEvents = "none";
+    });
+    this.initializePromotePawnDialog();
+  }
+
+  displayResult(message) {
+    var modal = new bootstrap.Modal(document.getElementById("resultModal"));
+    var modalBody = document.querySelector("#resultModal .modal-body");
+    modalBody.textContent = message;
+    modal.show();
+  }
+  initializePromotePawnDialog() {
+    const rookPieceDocument = document.getElementById("rookPiece");
+    const queenPieceDocument = document.getElementById("queenPiece");
+    const bishopPieceDocument = document.getElementById("bishopPiece");
+    const kinghtDocument = document.getElementById("knightPiece");
+    const startButton = document.getElementById("undoBtn");
+    rookPieceDocument.innerHTML = PIECE_MAP.rook;
+    queenPieceDocument.innerHTML = PIECE_MAP.queen;
+    bishopPieceDocument.innerHTML = PIECE_MAP.bishop;
+    kinghtDocument.innerHTML = PIECE_MAP.knight;
+    const pieceSelectionModal = new bootstrap.Modal(
+      document.getElementById("pieceSelectionModal")
+    );
+
+    // Define a function to handle the click event for the "selectPieceButton"
+    const handleSelectPiece = () => {
+      const selectedPieceDocument = document.querySelector(
+        'input[name="pieceOption"]:checked'
+      );
+      if (selectedPieceDocument) {
+        const selectedPieceDocumentId = selectedPieceDocument.id;
+
+        // Store the selected piece for later use
+        this.selectedPiecePromo = this.selectionPromo[selectedPieceDocumentId];
+        pieceSelectionModal.hide();
+      }
+    };
+
+    document
+      .getElementById("selectPieceButton")
+      .addEventListener("click", handleSelectPiece);
+    startButton.addEventListener("click", function () {
+      pieceSelectionModal.show();
+    });
+    this.pieceSelectionModal = pieceSelectionModal;
   }
 
   initializeSquare(position) {

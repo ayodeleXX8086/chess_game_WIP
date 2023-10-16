@@ -2,6 +2,7 @@
 import { Board } from "../board";
 import { Player, GRID, PieceType, Position } from "../utils.js";
 import { ChessMinmaxAI } from "../ai";
+import { pieceMap } from "../ai/pointMap";
 
 // Test Board
 describe("Board", () => {
@@ -10,7 +11,12 @@ describe("Board", () => {
 
   it("should initialize an empty 8x8 chessboard", () => {
     const piece = board.getPieceFromBoard({ row: 0, col: 0 });
-
+    const result = pieceMap(
+      { color: Player.BLACK, code: PieceType.KING },
+      Player.BLACK
+    );
+    console.log(result);
+    // console.log(board.grid);
     // Check if the piece is not null (exists) and has a color property equal to 'black'.
     expect(piece).not.toBeNull();
     expect(piece.color).toBe(Player.BLACK);

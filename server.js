@@ -40,7 +40,7 @@ app.get("/:folder/:filename?", async (req, res) => {
       const data = await fs.readFile(filePath, "utf8");
       // console.log("Found", filePath);
       res.type("text/javascript").send(data);
-      return; // Exit the loop if a file is found
+      return;
     } catch (err) {
       // console.log(err, filePath);
     }
@@ -51,5 +51,5 @@ app.get("/:folder/:filename?", async (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-  // console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });

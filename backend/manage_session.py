@@ -62,7 +62,6 @@ class ManageSession:
         async with self.redis_context_manager as redis_client:
             is_channel_exists = await redis_client.exists(channel_id)
             if not is_channel_exists:
-                print("Channel doesn't exist")
                 raise SessionException(ExceptionCode.DoesNotExist, "Unable to find channel")
             await redis_client.hset(channel_id, user_id, json.dumps({'role': PlayerRole.Player}))
             payload = MessageContainer(message_type=MessageType.Request, sender_user_id=user_id, channel_id=channel_id,

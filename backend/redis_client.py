@@ -14,6 +14,10 @@ class RedisManager:
         async with self.connection as conn:
             return await conn.get(key)
 
+    async def delete(self, key: str):
+        async with self.connection as conn:
+            return await conn.delete(key)
+
     async def hset(self, hash_name: str, key: str, value: Any):
         async with self.connection as conn:
             return await conn.hsetnx(hash_name, key, value)
